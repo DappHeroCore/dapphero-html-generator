@@ -41,26 +41,29 @@ const getOutputElement = ({ name = '' }, { id = '', index = '' }) => `
 `;
 
 const getInvokeElement = ({ name = '' }, { id = '' }) => `
-  <button data-dh-property-method-id="${id}" data-dh-property-invoke="true">${name ? name : 'anonymous'}</button>
+  <button
+    data-dh-property-method-id="${id}"
+    data-dh-property-invoke="true"
+  >
+    ${name ? name : 'anonymous'}
+  </button>
 `;
 
 const generateHtmlPieces = (abi = [], contractName) =>
-  abi
-    .map((method) => {
-      const id = generateUniqueId();
-      const { inputs = [], outputs = [] } = method;
+  abi.map((method) => {
+    const id = generateUniqueId();
+    const { inputs = [], outputs = [] } = method;
 
-      const invoker = getInvokeElement(method, { id });
-      const inputElements = inputs.map((input) => getInputElement(input, { id }));
-      const outputElements = outputs.map((output, index) => getOutputElement(output, { id, index }));
+    const invoker = getInvokeElement(method, { id });
+    const inputElements = inputs.map((input) => getInputElement(input, { id }));
+    const outputElements = outputs.map((output, index) => getOutputElement(output, { id, index }));
 
-      const autoInvoke = inputs.length === 0 ? 'true' : 'false';
-      const children = [...inputElements, ...outputElements, invoker].join('');
-      const featureElement = getFeatureElement(method, { id, children, autoInvoke, contractName });
+    const autoInvoke = inputs.length === 0 ? 'true' : 'false';
+    const children = [...inputElements, ...outputElements, invoker].join('');
+    const featureElement = getFeatureElement(method, { id, children, autoInvoke, contractName });
 
-      return featureElement;
-    })
-    .map((element) => prettifyHtml(element));
+    return prettifyHtml(featureElement);
+  });
 
 const prettifyHtml = (html, wrapperTag = '', title = '') => {
   return prettier
@@ -70,23 +73,11 @@ const prettifyHtml = (html, wrapperTag = '', title = '') => {
 
 // getters
 const getHtmlPiecesFromViewMethods = (abi, contractName) => {
-  return (
-    abi
-    |> getMethods
-    |> getViewMethods
-    |> ((abi) => generateHtmlPieces(abi, contractName))
-    |> ((htmlPieces) => htmlPieces.map((html) => prettifyHtml(html)))
-  );
+  return abi |> getMethods |> getViewMethods |> ((abi) => generateHtmlPieces(abi, contractName));
 };
 
 const getHtmlPiecesFromTransactionMethods = (abi, contractName) => {
-  return (
-    abi
-    |> getMethods
-    |> getTransactionMethods
-    |> ((abi) => generateHtmlPieces(abi, contractName))
-    |> ((htmlPieces) => htmlPieces.map((html) => prettifyHtml(html)))
-  );
+  return abi |> getMethods |> getTransactionMethods |> ((abi) => generateHtmlPieces(abi, contractName));
 };
 
 const getEntireHtml = (abi, contractName) => {
@@ -102,6 +93,8 @@ const getEntireHtml = (abi, contractName) => {
 // test
 // const { abi } = require('../mocks/abi');
 // const contractName = 'wrapped-eth';
-// console.log(getEntireHtml(abi, contractName);
-// console.log(getHtmlPiecesFromViewMethods(abi, contractName));
-// console.log(getHtmlPiecesFromTransactionMethods(abi, contractName));
+// console.log(getEntireHtml(abi, contractName));
+// console.log([
+//   ...getHtmlPiecesFromViewMethods(abi, contractName),
+//   ...getHtmlPiecesFromTransactionMethods(abi, contractName),
+// ]);
