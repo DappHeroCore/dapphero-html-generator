@@ -66,9 +66,10 @@ const generateHtmlPieces = (abi = [], contractName) =>
   });
 
 const prettifyHtml = (html, wrapperTag = '', title = '') => {
-  return prettier
-    .format(wrapperTag ? `<${wrapperTag}>${title ? `<h2>${title}</h2>` : ''}${html}</${wrapperTag}>` : `${html}`)
-    .slice(0, -2);
+  return prettier.format(
+    wrapperTag ? `<${wrapperTag}>${title ? `<h2>${title}</h2>` : ''}${html}</${wrapperTag}>` : `${html}`,
+    { parser: 'html' },
+  );
 };
 
 // getters
@@ -80,6 +81,11 @@ const getHtmlPiecesFromTransactionMethods = (abi, contractName) => {
   return abi |> getMethods |> getTransactionMethods |> ((abi) => generateHtmlPieces(abi, contractName));
 };
 
+const getAllHtmlPieces = (abi, contractName) => [
+  ...getHtmlPiecesFromViewMethods(abi, contractName),
+  ...getHtmlPiecesFromTransactionMethods(abi, contractName),
+];
+
 const getEntireHtml = (abi, contractName) => {
   const htmlPiecesViewMethods = getHtmlPiecesFromViewMethods(abi, contractName).join(`\n <hr /> \n`);
   const htmlPiecesTransactionMethods = getHtmlPiecesFromTransactionMethods(abi, contractName).join(`\n <hr /> \n`);
@@ -89,6 +95,8 @@ const getEntireHtml = (abi, contractName) => {
 
   return prettifyHtml(`${viewMethodsHtml}${transactionsMethodsHtml}`, 'main', contractName);
 };
+
+module.exports = { getEntireHtml, getAllHtmlPieces, getHtmlPiecesFromViewMethods, getHtmlPiecesFromTransactionMethods };
 
 // test
 // const { abi } = require('../mocks/abi');
