@@ -1,8 +1,15 @@
-const prettier = require('prettier');
-
 // lib
 const { generateUniqueId } = require('../lib/id');
 const { getMethods, getViewMethods, getTransactionMethods } = require('../lib/abi');
+
+// string helpers
+const formatHtml = (string) =>
+  string
+    .replace(/\n*/g, '')
+    .replace(/>\s+</g, '><')
+    .replace(/>\s+</g, '><')
+    .replace(/\s{3}/g, '')
+    .replace(/\s+>/g, '>');
 
 // html helpers
 const getFeatureElement = (
@@ -10,31 +17,31 @@ const getFeatureElement = (
   { id = '', children = '', contractName = '', featureName = 'customContract', autoInvoke = 'false' },
 ) => `
   <div
-    data-dh-feature="${featureName}"
-    data-dh-property-method-id="${id}"
-    data-dh-property-auto-invoke="${autoInvoke}"
-    data-dh-property-contract-name="${contractName}"
-    data-dh-property-method-name="${name ? name : 'anonymous'}"
+    data-dh-feature='${featureName}'
+    data-dh-property-method-id='${id}'
+    data-dh-property-auto-invoke='${autoInvoke}'
+    data-dh-property-contract-name='${contractName}'
+    data-dh-property-method-name='${name ? name : 'anonymous'}'
   >
-    <h3>Method "${name ? name : 'anonymous'}"</h3>
+    <h3>Method '${name ? name : 'anonymous'}'</h3>
     ${children}
   </div>
 `;
 
 const getInputElement = ({ name = '', type }, { id = '' }) => `
   <input
-    type="text"
-    placeholder="Insert value with type ${type}"
-    data-dh-property-method-id="${id}"
-    data-dh-property-input-name="${name}"
+    type='text'
+    placeholder='Insert value with type ${type}'
+    data-dh-property-method-id='${id}'
+    data-dh-property-input-name='${name}'
   />
 `;
 
 const getOutputElement = ({ name = '' }, { id = '', index = '' }) => `
   <div
-    data-dh-property-outputs="true"
-    data-dh-property-method-id="${id}"
-    data-dh-property-output-name="${name || index}"
+    data-dh-property-outputs='true'
+    data-dh-property-method-id='${id}'
+    data-dh-property-output-name='${name || index}'
   >
     <pre>Output...</pre>
   </div>
@@ -42,12 +49,15 @@ const getOutputElement = ({ name = '' }, { id = '', index = '' }) => `
 
 const getInvokeElement = ({ name = '' }, { id = '' }) => `
   <button
-    data-dh-property-method-id="${id}"
-    data-dh-property-invoke="true"
+    data-dh-property-method-id='${id}'
+    data-dh-property-invoke='true'
   >
     ${name ? name : 'anonymous'}
   </button>
 `;
+
+const getHtmlFromPieces = (pieces) => pieces.map(({ html }) => html).join('</hr>');
+const getHtmlFromIO = (io) => io.reduce((acc, element) => `${acc}${element[element.key]}`, '');
 
 const generateHtmlPieces = (abi = [], contractName) =>
   abi.map((method) => {
@@ -55,21 +65,26 @@ const generateHtmlPieces = (abi = [], contractName) =>
     const { inputs = [], outputs = [] } = method;
 
     const invoker = getInvokeElement(method, { id });
-    const inputElements = inputs.map((input) => getInputElement(input, { id }));
-    const outputElements = outputs.map((output, index) => getOutputElement(output, { id, index }));
+
+    const inputElements = inputs.map((input) => {
+      const key = input.name ? input.name : 'anonymous';
+      return { key, [key]: formatHtml(getInputElement(input, { id })) };
+    });
+    const outputElements = outputs.map((output, index) => {
+      const key = output.name ? output.name : 'anonymous';
+      return { key, [key]: formatHtml(getOutputElement(output, { id, index })) };
+    });
 
     const autoInvoke = inputs.length === 0 ? 'true' : 'false';
-    const children = [...inputElements, ...outputElements, invoker].join('');
+    const children = formatHtml([...getHtmlFromIO(inputElements), ...getHtmlFromIO(outputElements), invoker].join(''));
+
     const featureElement = getFeatureElement(method, { id, children, autoInvoke, contractName });
 
-    return prettifyHtml(featureElement);
+    return { html: wrapIntoTags(featureElement), inputs: inputElements, outputs: outputElements, invoke: invoker };
   });
 
-const prettifyHtml = (html, wrapperTag = '', title = '') => {
-  return prettier.format(
-    wrapperTag ? `<${wrapperTag}>${title ? `<h2>${title}</h2>` : ''}${html}</${wrapperTag}>` : `${html}`,
-    { parser: 'html' },
-  );
+const wrapIntoTags = (html, wrapperTag = '', title = '') => {
+  return wrapperTag ? `<${wrapperTag}>${title ? `<h2>${title}</h2>` : ''}${html}</${wrapperTag}>` : `${html}`;
 };
 
 // getters
@@ -87,13 +102,16 @@ const getAllHtmlPieces = (abi, contractName) => [
 ];
 
 const getEntireHtml = (abi, contractName) => {
-  const htmlPiecesViewMethods = getHtmlPiecesFromViewMethods(abi, contractName).join(`\n <hr /> \n`);
-  const htmlPiecesTransactionMethods = getHtmlPiecesFromTransactionMethods(abi, contractName).join(`\n <hr /> \n`);
+  const htmlPiecesViewMethods = getHtmlPiecesFromViewMethods(abi, contractName);
+  const htmlPiecesTransactionMethods = getHtmlPiecesFromTransactionMethods(abi, contractName);
 
-  const viewMethodsHtml = prettifyHtml(htmlPiecesViewMethods, 'section', 'Public Methods');
-  const transactionsMethodsHtml = prettifyHtml(htmlPiecesTransactionMethods, 'section', 'Transaction Methods');
+  const viewMethodsHtml = getHtmlFromPieces(htmlPiecesViewMethods);
+  const transactionMethodsHtml = getHtmlFromPieces(htmlPiecesTransactionMethods);
 
-  return prettifyHtml(`${viewMethodsHtml}${transactionsMethodsHtml}`, 'main', contractName);
+  const viewMethodsHtmlWrapped = wrapIntoTags(viewMethodsHtml, 'section', 'Public Methods');
+  const transactionsMethodsHtmlWrapped = wrapIntoTags(transactionMethodsHtml, 'section', 'Transaction Methods');
+
+  return formatHtml(wrapIntoTags(`${viewMethodsHtmlWrapped}${transactionsMethodsHtmlWrapped}`, 'main', contractName));
 };
 
 module.exports = { getEntireHtml, getAllHtmlPieces, getHtmlPiecesFromViewMethods, getHtmlPiecesFromTransactionMethods };

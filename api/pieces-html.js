@@ -17,8 +17,8 @@ module.exports = (req, res) => {
       return res.status(422).send({ message: 'Invalid ABI' });
     }
 
-    const viewMethodsHtml = getHtmlPiecesFromViewMethods(ABI, contractName).join(`\n <hr /> \n`);
-    const transactionMethodsHtml = getHtmlPiecesFromTransactionMethods(ABI, contractName).join(`\n <hr /> \n`);
+    const viewMethodsHtml = getHtmlPiecesFromViewMethods(ABI, contractName);
+    const transactionMethodsHtml = getHtmlPiecesFromTransactionMethods(ABI, contractName);
 
     res.status(200).send({ viewMethodsHtml, transactionMethodsHtml });
   } catch (error) {
