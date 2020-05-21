@@ -2,22 +2,21 @@ const { getEntireHtml } = require('../dist/bundle');
 
 module.exports = (req, res) => {
   try {
-    const { abi, contractName } = req.body;
-    const ABI = JSON.parse(abi);
+    const { abi, contractName } = JSON.parse(req.body);
 
     if (!contractName) {
       return res.status(400).send({ message: 'Contract name not defined' });
     }
 
-    if (!ABI) {
+    if (!abi) {
       return res.status(400).send({ message: 'ABI not defined' });
     }
 
-    if (!Array.isArray(ABI)) {
+    if (!Array.isArray(abi)) {
       return res.status(422).send({ message: 'Invalid ABI' });
     }
 
-    const html = getEntireHtml(ABI, contractName);
+    const html = getEntireHtml(abi, contractName);
 
     res.status(200).send({ html });
   } catch (error) {

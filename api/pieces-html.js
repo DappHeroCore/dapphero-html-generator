@@ -2,23 +2,22 @@ const { getHtmlPiecesFromViewMethods, getHtmlPiecesFromTransactionMethods } = re
 
 module.exports = (req, res) => {
   try {
-    const { abi, contractName } = req.body;
-    const ABI = JSON.parse(abi);
+    const { abi, contractName } = JSON.parse(req.body);
 
     if (!contractName) {
       return res.status(400).send({ message: 'Contract name not defined' });
     }
 
-    if (!ABI) {
+    if (!abi) {
       return res.status(400).send({ message: 'ABI not defined' });
     }
 
-    if (!Array.isArray(ABI)) {
+    if (!Array.isArray(abi)) {
       return res.status(422).send({ message: 'Invalid ABI' });
     }
 
-    const viewMethodsHtml = getHtmlPiecesFromViewMethods(ABI, contractName);
-    const transactionMethodsHtml = getHtmlPiecesFromTransactionMethods(ABI, contractName);
+    const viewMethodsHtml = getHtmlPiecesFromViewMethods(abi, contractName);
+    const transactionMethodsHtml = getHtmlPiecesFromTransactionMethods(abi, contractName);
 
     res.status(200).send({ viewMethodsHtml, transactionMethodsHtml });
   } catch (error) {
