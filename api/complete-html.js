@@ -1,8 +1,8 @@
-const { getEntireHtml } = require('../dist/bundle');
+const { getEntireHtml, createCodesandbox } = require('../dist/bundle');
 
 module.exports = (req, res) => {
   try {
-    const { abi, contractName } = JSON.parse(req.body);
+    const { abi, contractName } = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
 
     if (!contractName) {
       return res.status(400).send({ message: 'Contract name not defined' });
@@ -17,8 +17,9 @@ module.exports = (req, res) => {
     }
 
     const html = getEntireHtml(abi, contractName);
+    const codesandbox = createCodesandbox(html, contractName);
 
-    res.status(200).send({ html });
+    res.status(200).send({ html, codesandbox });
   } catch (error) {
     res.status(500).send({ error: error.message, message: 'Ups! Internal error' });
   }

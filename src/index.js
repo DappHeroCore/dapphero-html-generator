@@ -2,6 +2,7 @@ const prettier = require('prettier');
 
 // lib
 const { generateUniqueId } = require('../lib/id');
+const { createCodesandbox } = require('../lib/codesandbox');
 const { getMethods, getViewMethods, getTransactionMethods } = require('../lib/abi');
 
 // string helpers
@@ -110,7 +111,13 @@ const getEntireHtml = (abi, contractName) => {
   return formatHtml(wrapIntoTags(`${viewMethodsHtmlWrapped}${transactionsMethodsHtmlWrapped}`, 'main', contractName));
 };
 
-module.exports = { getEntireHtml, getAllHtmlPieces, getHtmlPiecesFromViewMethods, getHtmlPiecesFromTransactionMethods };
+module.exports = {
+  getEntireHtml,
+  getAllHtmlPieces,
+  createCodesandbox,
+  getHtmlPiecesFromViewMethods,
+  getHtmlPiecesFromTransactionMethods,
+};
 
 // test
 // const { abi } = require('../mocks/abi');

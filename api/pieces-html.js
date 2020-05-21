@@ -2,7 +2,7 @@ const { getHtmlPiecesFromViewMethods, getHtmlPiecesFromTransactionMethods } = re
 
 module.exports = (req, res) => {
   try {
-    const { abi, contractName } = JSON.parse(req.body);
+    const { abi, contractName } = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
 
     if (!contractName) {
       return res.status(400).send({ message: 'Contract name not defined' });
