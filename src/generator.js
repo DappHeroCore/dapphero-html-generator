@@ -1,15 +1,11 @@
+const prettier = require('prettier');
+
 // lib
 const { generateUniqueId } = require('../lib/id');
 const { getMethods, getViewMethods, getTransactionMethods } = require('../lib/abi');
 
 // string helpers
-const formatHtml = (string) =>
-  string
-    .replace(/\n*/g, '')
-    .replace(/>\s+</g, '><')
-    .replace(/>\s+</g, '><')
-    .replace(/\s{3}/g, '')
-    .replace(/\s+>/g, '>');
+const formatHtml = (string) => prettier.format(string, { parser: 'html' });
 
 // html helpers
 const getFeatureElement = (
@@ -17,31 +13,31 @@ const getFeatureElement = (
   { id = '', children = '', contractName = '', featureName = 'customContract', autoInvoke = 'false' },
 ) => `
   <div
-    data-dh-feature='${featureName}'
-    data-dh-property-method-id='${id}'
-    data-dh-property-auto-invoke='${autoInvoke}'
-    data-dh-property-contract-name='${contractName}'
-    data-dh-property-method-name='${name ? name : 'anonymous'}'
+    data-dh-feature="${featureName}"
+    data-dh-property-method-id="${id}"
+    data-dh-property-auto-invoke="${autoInvoke}"
+    data-dh-property-contract-name="${contractName}"
+    data-dh-property-method-name="${name ? name : 'anonymous'}"
   >
-    <h3>Method '${name ? name : 'anonymous'}'</h3>
+    <h3>Method "${name ? name : 'anonymous'}"</h3>
     ${children}
   </div>
 `;
 
 const getInputElement = ({ name = '', type }, { id = '' }) => `
   <input
-    type='text'
-    placeholder='Insert value with type ${type}'
-    data-dh-property-method-id='${id}'
-    data-dh-property-input-name='${name}'
+    type="text"
+    data-dh-property-method-id="${id}"
+    data-dh-property-input-name="${name}"
+    placeholder="Insert value with type ${type}"
   />
 `;
 
 const getOutputElement = ({ name = '' }, { id = '', index = '' }) => `
   <div
-    data-dh-property-outputs='true'
-    data-dh-property-method-id='${id}'
-    data-dh-property-output-name='${name || index}'
+    data-dh-property-outputs="true"
+    data-dh-property-method-id="${id}"
+    data-dh-property-output-name="${name || index}"
   >
     <pre>Output...</pre>
   </div>
@@ -49,14 +45,14 @@ const getOutputElement = ({ name = '' }, { id = '', index = '' }) => `
 
 const getInvokeElement = ({ name = '' }, { id = '' }) => `
   <button
-    data-dh-property-method-id='${id}'
-    data-dh-property-invoke='true'
+    data-dh-property-invoke="true"
+    data-dh-property-method-id="${id}"
   >
     ${name ? name : 'anonymous'}
   </button>
 `;
 
-const getHtmlFromPieces = (pieces) => pieces.map(({ html }) => html).join('</hr>');
+const getHtmlFromPieces = (pieces) => pieces.map(({ html }) => html).join('<hr/>');
 const getHtmlFromIO = (io) => io.reduce((acc, element) => `${acc}${element[element.key]}`, '');
 
 const generateHtmlPieces = (abi = [], contractName) =>

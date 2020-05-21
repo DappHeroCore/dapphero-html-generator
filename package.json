@@ -5,7 +5,8 @@
   "author": "Leonardo Galante <lndgalante@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "nanoid": "^3.1.9"
+    "nanoid": "^3.1.9",
+    "prettier": "^2.0.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
