@@ -35,11 +35,11 @@ const getInputElement = ({ name = '', type }, { id = '' }) => `
   />
 `;
 
-const getOutputElement = ({ name = '' }, { id = '' }) => `
+const getOutputElement = ({ name = '' }, { id = '', index, isTransaction }) => `
   <div
-    data-dh-property-outputs="true"
     data-dh-property-method-id="${id}"
-    data-dh-property-output-name="${name ? name : 'true'}"
+    ${isTransaction ? `data-dh-property-outputs="true"` : ''}
+    ${!isTransaction ? `data-dh-property-output-name="${name || index}"` : ''}
   >
     <pre>Output...</pre>
   </div>
@@ -77,17 +77,18 @@ const getHtmlFromIO = (io) => io.reduce((acc, element) => `${acc}${element[eleme
 const generateHtmlPieces = (abi = [], contractName) =>
   abi.map((method) => {
     const id = generateUniqueId();
-    const { inputs = [], outputs = [], name } = method;
+    const { inputs = [], outputs = [], name, stateMutability } = method;
 
+    const isTransaction = stateMutability !== 'view';
     const invoker = getInvokeElement(method, { id });
 
     const inputElements = inputs.map((input) => {
       const key = input.name ? input.name : 'anonymous';
       return { key, [key]: formatHtml(getInputElement(input, { id })) };
     });
-    const outputElements = outputs.map((output) => {
+    const outputElements = outputs.map((output, index) => {
       const key = output.name ? output.name : 'anonymous';
-      return { key, [key]: formatHtml(getOutputElement(output, { id })) };
+      return { key, [key]: formatHtml(getOutputElement(output, { id, isTransaction, index })) };
     });
 
     const autoInvoke = inputs.length === 0 ? 'true' : 'false';
