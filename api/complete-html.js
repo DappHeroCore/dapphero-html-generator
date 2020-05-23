@@ -1,23 +1,23 @@
 const { getEntireHtml, createCodesandbox } = require('../dist/bundle');
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   try {
-    const { abi, contractName } = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const { abis, projectId } = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
 
-    if (!contractName) {
-      return res.status(400).send({ message: 'Contract name not defined' });
+    if (!projectId) {
+      return res.status(400).send({ message: 'Project id not defined' });
     }
 
-    if (!abi) {
-      return res.status(400).send({ message: 'ABI not defined' });
+    if (!abis) {
+      return res.status(400).send({ message: 'ABIs not defined' });
     }
 
-    if (!Array.isArray(abi)) {
+    if (!Array.isArray(abis)) {
       return res.status(422).send({ message: 'Invalid ABI' });
     }
 
-    const html = getEntireHtml(abi, contractName);
-    const codesandbox = createCodesandbox(html, contractName);
+    const html = getEntireHtml(abis, projectId);
+    const codesandbox = await createCodesandbox(html);
 
     res.status(200).send({ html, codesandbox });
   } catch (error) {

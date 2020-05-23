@@ -2,6 +2,7 @@ const prettier = require('prettier');
 
 // lib
 const { generateUniqueId } = require('../lib/id');
+const { createHtmlTemplate } = require('../lib/html');
 const { createCodesandbox } = require('../lib/codesandbox');
 const { getMethods, getViewMethods, getTransactionMethods } = require('../lib/abi');
 
@@ -53,6 +54,23 @@ const getInvokeElement = ({ name = '' }, { id = '' }) => `
   </button>
 `;
 
+const getScriptTag = (projectId) => `
+  <script
+    id="dh-apiKey"
+    data-api="${projectId}"
+    src="<https://package.dapphero.io/main.js"
+  ></script>
+`;
+
+const getWeb3Tag = () => `
+  <button
+    data-dh-feature="network"
+    data-dh-property-enable="true"
+  >
+    Enable Web3
+  </button>
+`;
+
 const getHtmlFromPieces = (pieces) => pieces.map(({ html }) => html).join('<hr/>');
 const getHtmlFromIO = (io) => io.reduce((acc, element) => `${acc}${element[element.key]}`, '');
 
@@ -98,17 +116,27 @@ const getAllHtmlPieces = (abi, contractName) => [
   ...getHtmlPiecesFromTransactionMethods(abi, contractName),
 ];
 
-const getEntireHtml = (abi, contractName) => {
-  const htmlPiecesViewMethods = getHtmlPiecesFromViewMethods(abi, contractName);
-  const htmlPiecesTransactionMethods = getHtmlPiecesFromTransactionMethods(abi, contractName);
+const getEntireHtml = (abis, projectId) => {
+  const tags = abis
+    .map(({ abi, contractName }) => {
+      const htmlPiecesViewMethods = getHtmlPiecesFromViewMethods(abi, contractName);
+      const htmlPiecesTransactionMethods = getHtmlPiecesFromTransactionMethods(abi, contractName);
 
-  const viewMethodsHtml = getHtmlFromPieces(htmlPiecesViewMethods);
-  const transactionMethodsHtml = getHtmlFromPieces(htmlPiecesTransactionMethods);
+      const viewMethodsHtml = getHtmlFromPieces(htmlPiecesViewMethods);
+      const transactionMethodsHtml = getHtmlFromPieces(htmlPiecesTransactionMethods);
 
-  const viewMethodsHtmlWrapped = wrapIntoTags(viewMethodsHtml, 'section', 'Public Methods');
-  const transactionsMethodsHtmlWrapped = wrapIntoTags(transactionMethodsHtml, 'section', 'Transaction Methods');
+      const viewMethodsHtmlWrapped = wrapIntoTags(viewMethodsHtml, 'article', 'Public Methods');
+      const transactionsMethodsHtmlWrapped = wrapIntoTags(transactionMethodsHtml, 'article', 'Transaction Methods');
 
-  return formatHtml(wrapIntoTags(`${viewMethodsHtmlWrapped}${transactionsMethodsHtmlWrapped}`, 'main', contractName));
+      return wrapIntoTags(`${viewMethodsHtmlWrapped}${transactionsMethodsHtmlWrapped}`, 'section', contractName);
+    })
+    .join('\n');
+
+  const web3Tag = getWeb3Tag();
+  const scriptTag = getScriptTag(projectId);
+  const html = createHtmlTemplate(`${web3Tag}${tags}${scriptTag}`, contractName);
+
+  return formatHtml(html);
 };
 
 module.exports = {
@@ -121,8 +149,15 @@ module.exports = {
 
 // test
 // const { abi } = require('../mocks/abi');
-// const contractName = 'wrapped-eth';
-// console.log(getEntireHtml(abi, contractName));
+// console.log(
+//   JSON.stringify({
+//     abis: [
+//       { abi, contractName: 'wrapped-eth-1' },
+//       { abi, contractName: 'wrapped-eth-2' },
+//     ],
+//     projectId: '112233',
+//   }),
+// );
 // console.log([
 //   ...getHtmlPiecesFromViewMethods(abi, contractName),
 //   ...getHtmlPiecesFromTransactionMethods(abi, contractName),
