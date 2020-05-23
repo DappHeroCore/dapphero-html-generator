@@ -58,7 +58,7 @@ const getScriptTag = (projectId) => `
   <script
     id="dh-apiKey"
     data-api="${projectId}"
-    src="<https://package.dapphero.io/main.js"
+    src="https://package.dapphero.io/main.js"
   ></script>
 `;
 
