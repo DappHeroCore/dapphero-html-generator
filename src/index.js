@@ -29,17 +29,17 @@ const getFeatureElement = (
 const getInputElement = ({ name = '', type }, { id = '' }) => `
   <input
     type="text"
-    data-dh-property-method-id="${id}"
-    data-dh-property-input-name="${name}"
     placeholder="Insert value with type ${type}"
+    data-dh-property-method-id="${id}"
+    data-dh-property-input-name="${name ? name : '$true'}"
   />
 `;
 
-const getOutputElement = ({ name = '' }, { id = '', index = '' }) => `
+const getOutputElement = ({ name = '' }, { id = '' }) => `
   <div
     data-dh-property-outputs="true"
     data-dh-property-method-id="${id}"
-    data-dh-property-output-name="${name || index}"
+    data-dh-property-output-name="${name ? name : 'true'}"
   >
     <pre>Output...</pre>
   </div>
@@ -85,9 +85,9 @@ const generateHtmlPieces = (abi = [], contractName) =>
       const key = input.name ? input.name : 'anonymous';
       return { key, [key]: formatHtml(getInputElement(input, { id })) };
     });
-    const outputElements = outputs.map((output, index) => {
+    const outputElements = outputs.map((output) => {
       const key = output.name ? output.name : 'anonymous';
-      return { key, [key]: formatHtml(getOutputElement(output, { id, index })) };
+      return { key, [key]: formatHtml(getOutputElement(output, { id })) };
     });
 
     const autoInvoke = inputs.length === 0 ? 'true' : 'false';
