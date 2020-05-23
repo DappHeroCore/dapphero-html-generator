@@ -77,7 +77,7 @@ const getHtmlFromIO = (io) => io.reduce((acc, element) => `${acc}${element[eleme
 const generateHtmlPieces = (abi = [], contractName) =>
   abi.map((method) => {
     const id = generateUniqueId();
-    const { inputs = [], outputs = [] } = method;
+    const { inputs = [], outputs = [], name } = method;
 
     const invoker = getInvokeElement(method, { id });
 
@@ -95,7 +95,11 @@ const generateHtmlPieces = (abi = [], contractName) =>
 
     const featureElement = getFeatureElement(method, { id, children, autoInvoke, contractName });
 
-    return { html: wrapIntoTags(featureElement), inputs: inputElements, outputs: outputElements, invoke: invoker };
+    return {
+      methodName: name,
+      html: wrapIntoTags(featureElement),
+      metadata: { inputs: inputElements, outputs: outputElements, invoke: invoker },
+    };
   });
 
 const wrapIntoTags = (html, wrapperTag = '', title = '') => {
@@ -110,11 +114,6 @@ const getHtmlPiecesFromViewMethods = (abi, contractName) => {
 const getHtmlPiecesFromTransactionMethods = (abi, contractName) => {
   return abi |> getMethods |> getTransactionMethods |> ((abi) => generateHtmlPieces(abi, contractName));
 };
-
-const getAllHtmlPieces = (abi, contractName) => [
-  ...getHtmlPiecesFromViewMethods(abi, contractName),
-  ...getHtmlPiecesFromTransactionMethods(abi, contractName),
-];
 
 const getEntireHtml = (abis, projectId) => {
   const tags = abis
@@ -134,15 +133,15 @@ const getEntireHtml = (abis, projectId) => {
 
   const web3Tag = getWeb3Tag();
   const scriptTag = getScriptTag(projectId);
-  const html = createHtmlTemplate(`${web3Tag}${tags}${scriptTag}`, contractName);
+  const html = createHtmlTemplate(`${web3Tag}${tags}${scriptTag}`);
 
   return formatHtml(html);
 };
 
 module.exports = {
   getEntireHtml,
-  getAllHtmlPieces,
   createCodesandbox,
+  generateHtmlPieces,
   getHtmlPiecesFromViewMethods,
   getHtmlPiecesFromTransactionMethods,
 };

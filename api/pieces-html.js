@@ -1,4 +1,4 @@
-const { getHtmlPiecesFromViewMethods, getHtmlPiecesFromTransactionMethods } = require('../dist/bundle');
+const { generateHtmlPieces } = require('../dist/bundle');
 
 module.exports = (req, res) => {
   try {
@@ -16,10 +16,9 @@ module.exports = (req, res) => {
       return res.status(422).send({ message: 'Invalid ABI' });
     }
 
-    const viewMethodsHtml = getHtmlPiecesFromViewMethods(abi, contractName);
-    const transactionMethodsHtml = getHtmlPiecesFromTransactionMethods(abi, contractName);
+    const result = generateHtmlPieces(abi, contractName);
 
-    res.status(200).send({ viewMethodsHtml, transactionMethodsHtml });
+    res.status(200).send(result);
   } catch (error) {
     res.status(500).send({ error: error.message, message: 'Ups! Internal error' });
   }
