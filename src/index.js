@@ -19,9 +19,9 @@ const getFeatureElement = (
     data-dh-property-method-id="${id}"
     data-dh-property-auto-invoke="${autoInvoke}"
     data-dh-property-contract-name="${contractName}"
-    data-dh-property-method-name="${name ? name : 'anonymous'}"
+    data-dh-property-method-name="${name}"
   >
-    <h3>Method "${name ? name : 'anonymous'}"</h3>
+    <h3>Method "${name}"</h3>
     ${children}
   </div>
 `;
@@ -76,31 +76,36 @@ const getHtmlFromIO = (io) => io.reduce((acc, element) => `${acc}${element[eleme
 
 const generateHtmlPieces = (abi = [], contractName) =>
   abi.map((method) => {
-    const id = generateUniqueId();
-    const { inputs = [], outputs = [], name, stateMutability } = method;
 
-    const isTransaction = stateMutability !== 'view';
-    const invoker = getInvokeElement(method, { id });
+    console.log("Method Name: ", method.name)
+    // anonymous functions are fall back functions. Users should not directly acces from DappHero
+    if(!method.name) return null
+      const id = generateUniqueId();
+      const { inputs = [], outputs = [], name, stateMutability } = method;
 
-    const inputElements = inputs.map((input) => {
-      const key = input.name ? input.name : 'anonymous';
-      return { key, [key]: formatHtml(getInputElement(input, { id })) };
-    });
-    const outputElements = outputs.map((output, index) => {
-      const key = output.name ? output.name : 'anonymous';
-      return { key, [key]: formatHtml(getOutputElement(output, { id, isTransaction, index })) };
-    });
+      const isTransaction = stateMutability !== 'view';
+      const invoker = getInvokeElement(method, { id });
 
-    const autoInvoke = inputs.length === 0 ? 'true' : 'false';
-    const children = formatHtml([...getHtmlFromIO(inputElements), ...getHtmlFromIO(outputElements), invoker].join(''));
+      const inputElements = inputs.map((input) => {
+        const key = input.name ? input.name : 'anonymous';
+        return { key, [key]: formatHtml(getInputElement(input, { id })) };
+      });
+      const outputElements = outputs.map((output, index) => {
+        const key = output.name ? output.name : 'anonymous';
+        return { key, [key]: formatHtml(getOutputElement(output, { id, isTransaction, index })) };
+      });
 
-    const featureElement = getFeatureElement(method, { id, children, autoInvoke, contractName });
+      const autoInvoke = inputs.length === 0 ? 'true' : 'false';
+      const children = formatHtml([...getHtmlFromIO(inputElements), ...getHtmlFromIO(outputElements), invoker].join(''));
 
-    return {
-      methodName: name,
-      html: wrapIntoTags(featureElement),
-      metadata: { inputs: inputElements, outputs: outputElements, invoke: invoker },
-    };
+      const featureElement = getFeatureElement(method, { id, children, autoInvoke, contractName });
+
+      return {
+        methodName: name,
+        html: wrapIntoTags(featureElement),
+        metadata: { inputs: inputElements, outputs: outputElements, invoke: invoker },
+      };
+
   });
 
 const wrapIntoTags = (html, wrapperTag = '', title = '') => {
@@ -148,7 +153,7 @@ module.exports = {
 };
 
 // test
-// const { abi } = require('../mocks/abi');
+//const { abi } = require('../mocks/abi');
 // console.log(
 //   JSON.stringify({
 //     abis: [
