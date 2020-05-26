@@ -80,7 +80,7 @@ const generateHtmlPieces = (abi = [], contractName) => {
     const id = generateUniqueId();
     const { inputs = [], outputs = [], name, stateMutability } = method;
 
-    const isTransaction = (stateMutability !== 'view') || (stateMutability !== 'pure');
+    const isTransaction = (stateMutability !== 'view') && (stateMutability !== 'pure');
     const invoker = getInvokeElement(method, { id });
 
     const inputElements = inputs.map((input) => {
