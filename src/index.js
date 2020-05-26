@@ -152,6 +152,8 @@ module.exports = {
 
 // test
 // const { abi } = require('../mocks/abi');
+const { abi} = require('../mocks/revertABI');
+const contractName = "Test"
 // console.log(generateHtmlPieces(abi, 'a'));
 // console.log(
 //   JSON.stringify({
@@ -162,9 +164,9 @@ module.exports = {
 //     projectId: '112233',
 //   }),
 // );
-// console.log([
-//   ...getHtmlPiecesFromViewMethods(abi, contractName),
-//   ...getHtmlPiecesFromTransactionMethods(abi, contractName),
-// ]);
+console.log([
+  ...getHtmlPiecesFromViewMethods(abi, contractName),
+  ...getHtmlPiecesFromTransactionMethods(abi, contractName),
+]);
 // const {abis} = require('../mocks/abis')
-// console.log(getEntireHtml(abis, 1234))
+// console.log(getEntireHtml(abi, 1234))
