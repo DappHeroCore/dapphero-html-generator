@@ -40,8 +40,8 @@ const getInputElement = ({ name = '', type }, { id = '' }) => `
 const getOutputElement = ({ name = '' }, { id = '', index, isTransaction }) => {
 
   // log(chalk.red('Hello'))
-  
-return (`
+
+  return (`
   <div
     data-dh-property-method-id="${id}"
     ${isTransaction ? `data-dh-property-outputs="true"` : ''}
@@ -49,9 +49,10 @@ return (`
   >
     <pre>Output...</pre>
   </div>
-`);}
+`);
+}
 
-  const getInvokeElement = ({ name = '' }, { id = '' }) => `
+const getInvokeElement = ({ name = '' }, { id = '' }) => `
   <button
     data-dh-property-invoke="true"
     data-dh-property-method-id="${id}"
@@ -60,7 +61,7 @@ return (`
   </button>
 `;
 
-  const getScriptTag = (projectId) => `
+const getScriptTag = (projectId) => `
   <script
     id="dh-apiKey"
     data-api="${projectId}"
@@ -74,7 +75,7 @@ return (`
     </style>
 `;
 
-  const getWeb3Tag = () => `
+const getWeb3Tag = () => `
   <button
     data-dh-feature="network"
     data-dh-property-enable="true"
@@ -83,102 +84,102 @@ return (`
   </button>
 `;
 
-  const getHtmlFromPieces = (pieces) => pieces.map(({ html }) => html).join('<hr/>');
+const getHtmlFromPieces = (pieces) => pieces.map(({ html }) => html).join('<hr/>');
 
-  const getHtmlFromIO = (io) => io.reduce((acc, element) => `${acc}${element[element.key]}`, '');
+const getHtmlFromIO = (io) => io.reduce((acc, element) => `${acc}${element[element.key]}`, '');
 
-  const generateHtmlPieces = (abi = [], contractName) => {
-    return filterAnonymousMethods(abi).map((method) => {
-      const id = generateUniqueId();
-      const { inputs = [], outputs = [], name, stateMutability } = method;
+const generateHtmlPieces = (abi = [], contractName) => {
+  return filterAnonymousMethods(abi).map((method) => {
+    const id = generateUniqueId();
+    const { inputs = [], outputs = [], name, stateMutability } = method;
 
-      const isTransaction = (stateMutability !== 'view') && (stateMutability !== 'pure');
-      const invoker = getInvokeElement(method, { id });
+    const isTransaction = (stateMutability !== 'view') && (stateMutability !== 'pure');
+    const invoker = getInvokeElement(method, { id });
 
-      const inputElements = inputs.map((input) => {
-        const key = input.name;
-        return { key, [key]: formatHtml(getInputElement(input, { id })) };
-      });
-      const outputElements = outputs.map((output, index) => {
-        const key = output.name;
-        return { key, [key]: formatHtml(getOutputElement(output, { id, isTransaction, index })) };
-      });
-
-      const autoInvoke = inputs.length === 0 ? 'true' : 'false';
-      const children = formatHtml([...getHtmlFromIO(inputElements), ...getHtmlFromIO(outputElements), invoker].join(''));
-
-      const featureElement = getFeatureElement(method, { id, children, autoInvoke, contractName });
-
-      return {
-        methodName: name,
-        html: wrapIntoTags(featureElement),
-        metadata: { inputs: inputElements, outputs: outputElements, invoke: invoker },
-      };
+    const inputElements = inputs.map((input) => {
+      const key = input.name;
+      return { key, [key]: formatHtml(getInputElement(input, { id })) };
     });
-  };
-  const wrapIntoTags = (html, wrapperTag = '', title = '') => {
-    return wrapperTag ? `<${wrapperTag}>${title ? `<h2>${title}</h2>` : ''}${html}</${wrapperTag}>` : `${html}`;
-  };
+    const outputElements = outputs.map((output, index) => {
+      const key = output.name;
+      return { key, [key]: formatHtml(getOutputElement(output, { id, isTransaction, index })) };
+    });
 
-  // getters
-  const getHtmlPiecesFromViewMethods = (abi, contractName) => {
-    return abi |> getMethods |> getViewMethods |> ((abi) => generateHtmlPieces(abi, contractName));
-  };
+    const autoInvoke = inputs.length === 0 ? 'true' : 'false';
+    const children = formatHtml([...getHtmlFromIO(inputElements), ...getHtmlFromIO(outputElements), invoker].join(''));
 
-  const getHtmlPiecesFromTransactionMethods = (abi, contractName) => {
-    return abi |> getMethods |> getTransactionMethods |> ((abi) => generateHtmlPieces(abi, contractName));
-  };
+    const featureElement = getFeatureElement(method, { id, children, autoInvoke, contractName });
 
-  const getEntireHtml = (abis, projectId) => {
-    const tags = abis
-      .map(({ abi_text, name_text: contractName }) => {
-        const abi = JSON.parse(abi_text);
-        const htmlPiecesViewMethods = getHtmlPiecesFromViewMethods(abi, contractName);
-        const htmlPiecesTransactionMethods = getHtmlPiecesFromTransactionMethods(abi, contractName);
+    return {
+      methodName: name,
+      html: wrapIntoTags(featureElement),
+      metadata: { inputs: inputElements, outputs: outputElements, invoke: invoker },
+    };
+  });
+};
+const wrapIntoTags = (html, wrapperTag = '', title = '') => {
+  return wrapperTag ? `<${wrapperTag}>${title ? `<h2>${title}</h2>` : ''}${html}</${wrapperTag}>` : `${html}`;
+};
 
-        const viewMethodsHtml = getHtmlFromPieces(htmlPiecesViewMethods);
+// getters
+const getHtmlPiecesFromViewMethods = (abi, contractName) => {
+  return abi |> getMethods |> getViewMethods |> ((abi) => generateHtmlPieces(abi, contractName));
+};
 
-        const transactionMethodsHtml = getHtmlFromPieces(htmlPiecesTransactionMethods);
+const getHtmlPiecesFromTransactionMethods = (abi, contractName) => {
+  return abi |> getMethods |> getTransactionMethods |> ((abi) => generateHtmlPieces(abi, contractName));
+};
 
-        const viewMethodsHtmlWrapped = wrapIntoTags(viewMethodsHtml, 'article', 'Public Methods');
-        const transactionsMethodsHtmlWrapped = wrapIntoTags(transactionMethodsHtml, 'article', 'Transaction Methods');
+const getEntireHtml = (abis, projectId) => {
+  const tags = abis
+    .map(({ abi_text, name_text: contractName }) => {
+      const abi = JSON.parse(abi_text);
+      const htmlPiecesViewMethods = getHtmlPiecesFromViewMethods(abi, contractName);
+      const htmlPiecesTransactionMethods = getHtmlPiecesFromTransactionMethods(abi, contractName);
 
-        return wrapIntoTags(`${viewMethodsHtmlWrapped}${transactionsMethodsHtmlWrapped}`, 'section', contractName);
-      })
-      .join('\n');
+      const viewMethodsHtml = getHtmlFromPieces(htmlPiecesViewMethods);
 
-    const web3Tag = getWeb3Tag();
-    const scriptTag = getScriptTag(projectId);
-    const html = createHtmlTemplate(`${web3Tag}${tags}${scriptTag}`);
+      const transactionMethodsHtml = getHtmlFromPieces(htmlPiecesTransactionMethods);
 
-    return formatHtml(html);
-  };
+      const viewMethodsHtmlWrapped = wrapIntoTags(wrapIntoTags(wrapIntoTags(viewMethodsHtml, 'aside', ''), 'section', ''), 'article', 'Public Methods');
+      const transactionsMethodsHtmlWrapped = wrapIntoTags(wrapIntoTags(wrapIntoTags(transactionMethodsHtml, 'aside', ''), 'section', ''), 'article', 'Public Methods');
 
-  module.exports = {
-    getEntireHtml,
-    createCodesandbox,
-    generateHtmlPieces,
-    getHtmlPiecesFromViewMethods,
-    getHtmlPiecesFromTransactionMethods,
-  };
+      return wrapIntoTags(`${viewMethodsHtmlWrapped}${transactionsMethodsHtmlWrapped}`, 'section', contractName);
+    })
+    .join('\n');
 
-  // test
-  // const { abi } = require('../mocks/abi');
-  // const { abi } = require('../mocks/revertABI');
-  // const contractName = "Test"
-  // console.log(generateHtmlPieces(abi, 'a'));
-  // console.log(
-  //   JSON.stringify({
-  //     abis: [
-  //       { abi, contractName: 'wrapped-eth-1' },
-  //       { abi, contractName: 'wrapped-eth-2' },
-  //     ],
-  //     projectId: '112233',
-  //   }),
-  // );
-  // console.log([
-  //   ...getHtmlPiecesFromViewMethods(abi, contractName),
-  //   ...getHtmlPiecesFromTransactionMethods(abi, contractName),
-  // ]);
+  const web3Tag = getWeb3Tag();
+  const scriptTag = getScriptTag(projectId);
+  const html = createHtmlTemplate(`${web3Tag}${tags}${scriptTag}`);
+
+  return formatHtml(html);
+};
+
+module.exports = {
+  getEntireHtml,
+  createCodesandbox,
+  generateHtmlPieces,
+  getHtmlPiecesFromViewMethods,
+  getHtmlPiecesFromTransactionMethods,
+};
+
+// test
+// const { abi } = require('../mocks/abi');
+// const { abi } = require('../mocks/revertABI');
+// const contractName = "Test"
+// console.log(generateHtmlPieces(abi, 'a'));
+// console.log(
+//   JSON.stringify({
+//     abis: [
+//       { abi, contractName: 'wrapped-eth-1' },
+//       { abi, contractName: 'wrapped-eth-2' },
+//     ],
+//     projectId: '112233',
+//   }),
+// );
+// console.log([
+//   ...getHtmlPiecesFromViewMethods(abi, contractName),
+//   ...getHtmlPiecesFromTransactionMethods(abi, contractName),
+// ]);
 // const {abis} = require('../mocks/abis')
-// console.log(getEntireHtml(abi, 1234))
+//console.log(getEntireHtml(abi, 1234))
