@@ -38,7 +38,7 @@ const getInputElement = ({ name = '', type }, { id = '' }) => `
 const getOutputElement = ({ name = '' }, { id = '', index, isTransaction }) => `
   <div
     data-dh-property-method-id="${id}"
-    ${isTransaction ? `data-dh-property-outputs="true"` : ''}
+    ${(isTransaction || name === '') ? `data-dh-property-outputs="true"` : ''}
     ${!isTransaction ? `data-dh-property-output-name="${name || index}"` : ''}
   >
     <pre>Output...</pre>
@@ -119,11 +119,13 @@ const getHtmlPiecesFromTransactionMethods = (abi, contractName) => {
 
 const getEntireHtml = (abis, projectId) => {
   const tags = abis
-    .map(({ abi, contractName }) => {
+    .map(({ abi_text, name_text: contractName  }) => {
+       const abi = JSON.parse(abi_text);
       const htmlPiecesViewMethods = getHtmlPiecesFromViewMethods(abi, contractName);
       const htmlPiecesTransactionMethods = getHtmlPiecesFromTransactionMethods(abi, contractName);
 
       const viewMethodsHtml = getHtmlFromPieces(htmlPiecesViewMethods);
+
       const transactionMethodsHtml = getHtmlFromPieces(htmlPiecesTransactionMethods);
 
       const viewMethodsHtmlWrapped = wrapIntoTags(viewMethodsHtml, 'article', 'Public Methods');
@@ -164,3 +166,5 @@ module.exports = {
 //   ...getHtmlPiecesFromViewMethods(abi, contractName),
 //   ...getHtmlPiecesFromTransactionMethods(abi, contractName),
 // ]);
+// const {abis} = require('../mocks/abis')
+// console.log(getEntireHtml(abis, 1234))
