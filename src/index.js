@@ -66,6 +66,12 @@ return (`
     data-api="${projectId}"
     src="https://package.dapphero.io/main.js"
   ></script>
+  <link rel="stylesheet" href="https://unpkg.com/mvp.css" />
+    <style>
+      form {
+        margin: 40px;
+      }
+    </style>
 `;
 
   const getWeb3Tag = () => `
