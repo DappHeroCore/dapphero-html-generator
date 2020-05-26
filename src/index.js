@@ -45,7 +45,7 @@ return (`
   <div
     data-dh-property-method-id="${id}"
     ${isTransaction ? `data-dh-property-outputs="true"` : ''}
-    ${!isTransaction ? `data-dh-property-output-name="${name || index}"` : ''}
+    ${!isTransaction && name ? `data-dh-property-output-name="${name}"` : `data-dh-property-outputs="true"`}
   >
     <pre>Output...</pre>
   </div>
