@@ -115,7 +115,7 @@ const getWeb3Tag = () => `
   </button>
 `;
 
-const getCustomJavascriptTag = (networkId) => `
+const getCustomJavascriptTag = (networkId, networkName) => `
 <script>
 document.addEventListener(
   "dappHeroConfigLoaded",
@@ -132,8 +132,15 @@ document.addEventListener(
     dappHero.listenToSmartContractBlockchainEvent(data => {
       console.log("The blockChain Events: ", data)
     })
-  }
-);
+
+    
+    ${networkId && networkName ? `
+    //This is an example method for alerting your users they are on the wrong network
+    if(window.dappHero.provider.chainId !== "${networkId}"){
+      alert("Wrong network! You should be on ${networkName}")
+    }` : 
+    ""}
+  });
 </script>`
 
 const getHtmlFromPieces = (pieces) => pieces.map(({ html }) => html);
@@ -193,7 +200,7 @@ const getHtmlPiecesFromTransactionMethods = (abi, contractName) => {
   return abi |> getMethods |> getTransactionMethods |> ((abi) => generateHtmlPieces(abi, contractName));
 };
 
-const getEntireHtml = ({ abis, projectId, projectDescription, projectImage, projectName, projectNetworkId }) => {
+const getEntireHtml = ({ abis, projectId, projectDescription, projectImage, projectName, projectNetworkId, projectNetworkName }) => {
   const tags = abis
     .map(({ abi_text, name_text: contractName }) => {
       const abi = JSON.parse(abi_text);
@@ -213,7 +220,7 @@ const getEntireHtml = ({ abis, projectId, projectDescription, projectImage, proj
 
   // const web3Tag = getWeb3Tag();
   const headerTag = getHeaderTag(projectDescription, projectImage, projectName );
-  const customJavascript = getCustomJavascriptTag(projectNetworkId)
+  const customJavascript = getCustomJavascriptTag(projectNetworkId, projectNetworkName);
   const scriptTag = getScriptTag(projectId);
   const html = createHtmlTemplate(`${headerTag}${tags}${scriptTag}${customJavascript}`);
 
