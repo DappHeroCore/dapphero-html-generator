@@ -123,7 +123,7 @@ const generateHtmlPieces = (abi = [], contractName) => {
   });
 };
 const wrapIntoTags = (html, wrapperTag = '', title = '') => {
-  return wrapperTag ? `<${wrapperTag}>${title ? `<h2>${title}</h2>` : ''}${html}</${wrapperTag}>` : `${html}`;
+  return wrapperTag ? `<${wrapperTag}>${title ? `<section><h2>${title}</h2></section>` : ''}${html}</${wrapperTag}>` : `${html}`;
 };
 
 // getters
@@ -146,11 +146,8 @@ const getEntireHtml = (abis, projectId) => {
 
       const transactionMethodsHtml = getHtmlFromPieces(htmlPiecesTransactionMethods);
 
-      // const viewMethodsHtmlWrapped = wrapIntoTags(wrapIntoTags(wrapIntoTags(viewMethodsHtml, 'aside', ''), 'section', ''), 'article', 'Public Methods');
-      // const transactionsMethodsHtmlWrapped = wrapIntoTags(wrapIntoTags(wrapIntoTags(transactionMethodsHtml, 'aside', ''), 'section', ''), 'article', 'Transaction Methods');
-
-      const viewMethodsHtmlWrapped = wrapIntoTags(viewMethodsHtml, 'section','Public Methods');
-      const transactionsMethodsHtmlWrapped = wrapIntoTags(transactionMethodsHtml, 'section','Transaction Methods');
+      const viewMethodsHtmlWrapped = wrapIntoTags(wrapIntoTags(viewMethodsHtml, 'section','Public Methods'), 'header', '');
+      const transactionsMethodsHtmlWrapped = wrapIntoTags(wrapIntoTags(transactionMethodsHtml, 'section','Transaction Methods'), 'header', '');
 
       return wrapIntoTags(`${viewMethodsHtmlWrapped}${transactionsMethodsHtmlWrapped}`, 'div', contractName);
     })
