@@ -80,6 +80,32 @@ const getScriptTag = (projectId) => `
     </style>
 `;
 
+const getHeaderTag = (projectDescription, projectImage, projectName) => `    <header>
+<nav>
+    <img alt="Logo" src="${projectImage ? projectImage : "https://dd7tel2830j4w.cloudfront.net/f1588198682293x257424398827881060/Artboard%201.svg"}" height="70">
+    <ul>
+        <li>Menu Item 1</li>  
+        <li><a href="#">Menu Item 2</a></li>
+        <li><a href="#">Dropdown Menu Item</a>
+            <ul>
+                <li><a href="#">Sublink with a long name</a></li>
+                <li><a href="#">Short sublink</a></li>
+            </ul>
+        </li>
+    </ul>
+</nav>
+<h1>${projectName ? projectName : "My Sample Project"}</h1>
+<p><mark>Powered by <a href="https://www.dapphero.io">DappHero.io</a></mark></p>
+<p>${projectDescription ? projectDescription : "My sample project description"}</p>
+<br>
+<p>  <button
+data-dh-feature="network"
+data-dh-property-enable="true"
+>
+Enable Web3
+</button></p>
+</header>`
+
 const getWeb3Tag = () => `
   <button
     data-dh-feature="network"
@@ -101,16 +127,16 @@ const generateHtmlPieces = (abi = [], contractName) => {
     const isTransaction = (stateMutability !== 'view') && (stateMutability !== 'pure');
     const isPayable = (stateMutability === 'payable')
     const invoker = getInvokeElement(method, { id });
-    
+
     // if(name === "deposit") console.log("Name: ", name, " Inputs: ", inputs, " state: ", stateMutability)
 
-    
+
     let newInputs = inputs;
-    if(stateMutability === "payable"){
-      newInputs.push({name: 'EthValue', type: 'EthValue', payable: 'true'})
+    if (stateMutability === "payable") {
+      newInputs.push({ name: 'EthValue', type: 'EthValue', payable: 'true' })
     }
     // console.log("inputs: ", newInputs)
-    
+
 
     const inputElements = newInputs.map((input) => {
       const key = input.name;
@@ -146,7 +172,7 @@ const getHtmlPiecesFromTransactionMethods = (abi, contractName) => {
   return abi |> getMethods |> getTransactionMethods |> ((abi) => generateHtmlPieces(abi, contractName));
 };
 
-const getEntireHtml = (abis, projectId) => {
+const getEntireHtml = ({ abis, projectId, projectDescription, projectImage, projectName }) => {
   const tags = abis
     .map(({ abi_text, name_text: contractName }) => {
       const abi = JSON.parse(abi_text);
@@ -164,9 +190,10 @@ const getEntireHtml = (abis, projectId) => {
     })
     .join('\n');
 
-  const web3Tag = getWeb3Tag();
+  // const web3Tag = getWeb3Tag();
+  const headerTag = getHeaderTag(projectDescription, projectImage, projectName );
   const scriptTag = getScriptTag(projectId);
-  const html = createHtmlTemplate(`${web3Tag}${tags}${scriptTag}`);
+  const html = createHtmlTemplate(`${headerTag}${tags}${scriptTag}`);
 
   return formatHtml(html);
 };
