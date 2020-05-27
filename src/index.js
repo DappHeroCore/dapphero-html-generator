@@ -16,6 +16,7 @@ const getFeatureElement = (
   { name },
   { id = '', children = '', contractName = '', featureName = 'customContract', autoInvoke = 'false' },
 ) => `
+<header>
   <div
     data-dh-feature="${featureName}"
     data-dh-property-method-id="${id}"
@@ -23,18 +24,21 @@ const getFeatureElement = (
     data-dh-property-contract-name="${contractName}"
     data-dh-property-method-name="${name}"
   >
-    <h3>Method "${name}"</h3>
-    ${children}
+    <h3>Method <mark>"${name}"</mark></h3>
+    <section><aside>${children}</aside></section>
   </div>
+  </header>
 `;
 
 const getInputElement = ({ name = '', type }, { id = '' }) => `
+<section>
   <input
     type="text"
     placeholder="Insert value with type ${type}"
     data-dh-property-method-id="${id}"
     data-dh-property-input-name="${name ? name : '$true'}"
   />
+  </section>
 `;
 
 const getOutputElement = ({ name = '' }, { id = '', index, isTransaction }) => {
@@ -84,7 +88,7 @@ const getWeb3Tag = () => `
   </button>
 `;
 
-const getHtmlFromPieces = (pieces) => pieces.map(({ html }) => html).join('<hr/>');
+const getHtmlFromPieces = (pieces) => pieces.map(({ html }) => html);
 
 const getHtmlFromIO = (io) => io.reduce((acc, element) => `${acc}${element[element.key]}`, '');
 
@@ -109,6 +113,7 @@ const generateHtmlPieces = (abi = [], contractName) => {
     const children = formatHtml([...getHtmlFromIO(inputElements), ...getHtmlFromIO(outputElements), invoker].join(''));
 
     const featureElement = getFeatureElement(method, { id, children, autoInvoke, contractName });
+    console.log("generateHtmlPieces -> featureElement", featureElement)
 
     return {
       methodName: name,
@@ -141,10 +146,13 @@ const getEntireHtml = (abis, projectId) => {
 
       const transactionMethodsHtml = getHtmlFromPieces(htmlPiecesTransactionMethods);
 
-      const viewMethodsHtmlWrapped = wrapIntoTags(wrapIntoTags(wrapIntoTags(viewMethodsHtml, 'aside', ''), 'section', ''), 'article', 'Public Methods');
-      const transactionsMethodsHtmlWrapped = wrapIntoTags(wrapIntoTags(wrapIntoTags(transactionMethodsHtml, 'aside', ''), 'section', ''), 'article', 'Public Methods');
+      // const viewMethodsHtmlWrapped = wrapIntoTags(wrapIntoTags(wrapIntoTags(viewMethodsHtml, 'aside', ''), 'section', ''), 'article', 'Public Methods');
+      // const transactionsMethodsHtmlWrapped = wrapIntoTags(wrapIntoTags(wrapIntoTags(transactionMethodsHtml, 'aside', ''), 'section', ''), 'article', 'Transaction Methods');
 
-      return wrapIntoTags(`${viewMethodsHtmlWrapped}${transactionsMethodsHtmlWrapped}`, 'section', contractName);
+      const viewMethodsHtmlWrapped = wrapIntoTags(viewMethodsHtml, 'section','Public Methods');
+      const transactionsMethodsHtmlWrapped = wrapIntoTags(transactionMethodsHtml, 'section','Transaction Methods');
+
+      return wrapIntoTags(`${viewMethodsHtmlWrapped}${transactionsMethodsHtmlWrapped}`, 'div', contractName);
     })
     .join('\n');
 
