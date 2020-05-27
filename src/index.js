@@ -136,7 +136,7 @@ document.addEventListener(
     
     ${networkId && networkName ? `
     //This is an example method for alerting your users they are on the wrong network
-    if(window.dappHero.provider.chainId !== "${networkId}"){
+    if(window.dappHero.provider.chainId !== ${networkId}){
       alert("Wrong network! You should be on ${networkName}")
     }` : 
     ""}
