@@ -32,9 +32,10 @@ const getFeatureElement = (
 
 const getInputElement = ({ name = '', type }, { id = '' }) => `
 <section>
+Input name: <i>${name ? name : "anonymous input"}</i>
   <input
     type="text"
-    placeholder="Insert value with type ${type}"
+    placeholder="${type}"
     data-dh-property-method-id="${id}"
     data-dh-property-input-name="${name ? name : '$true'}"
   />
@@ -113,7 +114,6 @@ const generateHtmlPieces = (abi = [], contractName) => {
     const children = formatHtml([...getHtmlFromIO(inputElements), ...getHtmlFromIO(outputElements), invoker].join(''));
 
     const featureElement = getFeatureElement(method, { id, children, autoInvoke, contractName });
-    console.log("generateHtmlPieces -> featureElement", featureElement)
 
     return {
       methodName: name,
