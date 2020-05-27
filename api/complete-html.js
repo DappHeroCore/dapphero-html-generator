@@ -7,8 +7,6 @@ module.exports = async (req, res) => {
     const { abis, projectId, projectDescription = '', projectImage = '', projectName = '' } = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     thisAbi = abis
 
-    console.log("ProjectId: ", projectId, " description: ", projectDescription);
-
     if (!projectId) {
       return res.status(400).send({ message: 'Project id not defined' });
     }
