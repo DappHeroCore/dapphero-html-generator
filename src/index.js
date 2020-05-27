@@ -99,9 +99,20 @@ const generateHtmlPieces = (abi = [], contractName) => {
     const { inputs = [], outputs = [], name, stateMutability } = method;
 
     const isTransaction = (stateMutability !== 'view') && (stateMutability !== 'pure');
+    const isPayable = (stateMutability === 'payable')
     const invoker = getInvokeElement(method, { id });
+    
+    // if(name === "deposit") console.log("Name: ", name, " Inputs: ", inputs, " state: ", stateMutability)
 
-    const inputElements = inputs.map((input) => {
+    
+    let newInputs = inputs;
+    if(stateMutability === "payable"){
+      newInputs.push({name: 'EthValue', type: 'EthValue', payable: 'true'})
+    }
+    // console.log("inputs: ", newInputs)
+    
+
+    const inputElements = newInputs.map((input) => {
       const key = input.name;
       return { key, [key]: formatHtml(getInputElement(input, { id })) };
     });
@@ -146,8 +157,8 @@ const getEntireHtml = (abis, projectId) => {
 
       const transactionMethodsHtml = getHtmlFromPieces(htmlPiecesTransactionMethods);
 
-      const viewMethodsHtmlWrapped = wrapIntoTags(wrapIntoTags(viewMethodsHtml, 'section','Public Methods'), 'header', '');
-      const transactionsMethodsHtmlWrapped = wrapIntoTags(wrapIntoTags(transactionMethodsHtml, 'section','Transaction Methods'), 'header', '');
+      const viewMethodsHtmlWrapped = wrapIntoTags(wrapIntoTags(viewMethodsHtml, 'section', 'Public Methods'), 'header', '');
+      const transactionsMethodsHtmlWrapped = wrapIntoTags(wrapIntoTags(transactionMethodsHtml, 'section', 'Transaction Methods'), 'header', '');
 
       return wrapIntoTags(`${viewMethodsHtmlWrapped}${transactionsMethodsHtmlWrapped}`, 'div', contractName);
     })
