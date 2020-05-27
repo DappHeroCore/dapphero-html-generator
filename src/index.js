@@ -115,6 +115,27 @@ const getWeb3Tag = () => `
   </button>
 `;
 
+const getCustomJavascriptTag = (networkId) => `
+<script>
+document.addEventListener(
+  "dappHeroConfigLoaded",
+  ({ detail: dappHero }) => {
+    // Inside here you can listen to any event you want
+    console.log("DappHero Has Loaded!");
+
+    // For projects with auto-invoked method, you will want to filter on events
+    // dappHero.listenToTransactionStatusChange(data => {
+    //   console.log("Listening to transtaction status change", data);
+    // });
+
+    // This is how you can listen to any events your smart contract emits
+    dappHero.listenToSmartContractBlockchainEvent(data => {
+      console.log("The blockChain Events: ", data)
+    })
+  }
+);
+</script>`
+
 const getHtmlFromPieces = (pieces) => pieces.map(({ html }) => html);
 
 const getHtmlFromIO = (io) => io.reduce((acc, element) => `${acc}${element[element.key]}`, '');
@@ -172,7 +193,7 @@ const getHtmlPiecesFromTransactionMethods = (abi, contractName) => {
   return abi |> getMethods |> getTransactionMethods |> ((abi) => generateHtmlPieces(abi, contractName));
 };
 
-const getEntireHtml = ({ abis, projectId, projectDescription, projectImage, projectName }) => {
+const getEntireHtml = ({ abis, projectId, projectDescription, projectImage, projectName, projectNetworkId }) => {
   const tags = abis
     .map(({ abi_text, name_text: contractName }) => {
       const abi = JSON.parse(abi_text);
@@ -192,8 +213,9 @@ const getEntireHtml = ({ abis, projectId, projectDescription, projectImage, proj
 
   // const web3Tag = getWeb3Tag();
   const headerTag = getHeaderTag(projectDescription, projectImage, projectName );
+  const customJavascript = getCustomJavascriptTag(projectNetworkId)
   const scriptTag = getScriptTag(projectId);
-  const html = createHtmlTemplate(`${headerTag}${tags}${scriptTag}`);
+  const html = createHtmlTemplate(`${headerTag}${tags}${scriptTag}${customJavascript}`);
 
   return formatHtml(html);
 };

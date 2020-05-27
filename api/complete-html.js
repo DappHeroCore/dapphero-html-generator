@@ -4,7 +4,7 @@ module.exports = async (req, res) => {
   let thisAbi
 
   try {
-    const { abis, projectId, projectDescription = '', projectImage = '', projectName = '' } = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const { abis, projectId, projectNetworkId = '0', projectDescription = '', projectImage = '', projectName = '' } = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     thisAbi = abis
 
     if (!projectId) {
@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
       return res.status(422).send({ message: 'Invalid ABI' });
     }
 
-    const html = getEntireHtml({abis, projectId, projectDescription, projectImage, projectName});
+    const html = getEntireHtml({abis, projectId, projectNetworkId, projectDescription, projectImage, projectName});
 
     const codesandbox = await createCodesandbox(html);
 
