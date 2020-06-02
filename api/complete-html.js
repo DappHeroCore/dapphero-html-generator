@@ -1,11 +1,8 @@
 const { getEntireHtml, createCodesandbox } = require('../dist/bundle');
 
 module.exports = async (req, res) => {
-  let thisAbi
-
   try {
     const { abis, projectId, projectNetworkId = '', projectNetworkName = '', projectDescription = '', projectImage = '', projectName = '' } = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    thisAbi = abis
 
     if (!projectId) {
       return res.status(400).send({ message: 'Project id not defined' });
@@ -24,6 +21,7 @@ module.exports = async (req, res) => {
 
     res.status(200).send({ html, codesandbox, abis });
   } catch (error) {
-    res.status(500).send({ error: error.message, message: 'Ups! Internal error', thisAbi });
+    const { abis } = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    res.status(500).send({ error: error.message, message: 'Ups! Internal error', abis });
   }
 };
