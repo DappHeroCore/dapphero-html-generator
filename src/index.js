@@ -30,17 +30,26 @@ const getFeatureElement = (
   </header>
 `;
 
-const getInputElement = ({ name = '', type }, { id = '' }) => `
+const getInputElement = ({ name = '', type }, { id = '' , key, hasMoreThanOneAnonymousInput}) => {
+  
+  const getInputName = () => {
+    let inputName = name 
+    if(!name) inputName = '$true'
+    if(hasMoreThanOneAnonymousInput) inputName = `[${key}]`
+    return inputName
+  }
+
+  return (`
 <section>
 Input name: <i>${name ? name : "anonymous input"}</i>
   <input
     type="text"
     placeholder="${type}"
     data-dh-property-method-id="${id}"
-    data-dh-property-input-name="${name ? name : '$true'}"
+    data-dh-property-input-name="${getInputName()}"
   />
   </section>
-`;
+`)};
 
 const getOutputElement = ({ name = '' }, { id = '', index, isTransaction }) => {
 
@@ -72,7 +81,6 @@ const getScriptTag = (projectId) => `
     data-api="${projectId}"
     src="https://package.dapphero.io/main.js"
   ></script>
-  <link rel="stylesheet" href="https://unpkg.com/mvp.css" />
     <style>
       form {
         margin: 40px;
@@ -136,9 +144,9 @@ document.addEventListener(
     
     ${networkId && networkName ? `
     //This is an example method for alerting your users they are on the wrong network
-    if(window.dappHero.provider.chainId !== ${networkId}){
-      alert("Wrong network! You should be on ${networkName}")
-    }` : 
+    //if(window.dappHero.provider.chainId !== ${networkId}){
+    //  alert("Wrong network! You should be on ${networkName}")
+    //}` : 
     ""}
   });
 </script>`
@@ -165,10 +173,12 @@ const generateHtmlPieces = (abi = [], contractName) => {
     }
     // console.log("inputs: ", newInputs)
 
-
-    const inputElements = newInputs.map((input) => {
-      const key = input.name;
-      return { key, [key]: formatHtml(getInputElement(input, { id })) };
+    const hasMoreThanOneAnonymousInput = newInputs.map(({name}) => name).filter((name) => name === '').length > 1
+    
+    const inputElements = newInputs.map((input, index) => {
+      const key = input.name || index
+      
+      return { key, [key]: formatHtml(getInputElement(input, { id, key, hasMoreThanOneAnonymousInput })) };
     });
     const outputElements = outputs.map((output, index) => {
       const key = output.name;
