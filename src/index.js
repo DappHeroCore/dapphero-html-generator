@@ -15,18 +15,18 @@ const getFeatureElement = (
   { name },
   { id = '', children = '', contractName = '', featureName = 'customContract', autoInvoke = 'false' },
 ) => `
-<header>
-  <div
-    data-dh-feature="${featureName}"
-    data-dh-property-method-id="${id}"
-    data-dh-property-auto-invoke="${autoInvoke}"
-    data-dh-property-contract-name="${contractName}"
-    data-dh-property-method-name="${name}"
-  >
-    <h3>Method <mark>"${name}"</mark></h3>
-    <section><aside>${children}</aside></section>
-  </div>
-  </header>
+	<header>
+	  <div
+	    data-dh-feature="${featureName}"
+	    data-dh-property-method-id="${id}"
+	    data-dh-property-auto-invoke="${autoInvoke}"
+	    data-dh-property-contract-name="${contractName}"
+	    data-dh-property-method-name="${name}"
+	  >
+	    <h3>Method <mark>"${name}"</mark></h3>
+	    <section><aside>${children}</aside></section>
+	  </div>
+  	</header>
 `;
 
 const getInputElement = ({ name = '', type }, { id = '', key, hasMoreThanOneAnonymousInput }) => {
