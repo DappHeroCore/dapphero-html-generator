@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "builds": [{ "src": "/api/*.js", "use": "@now/node" }],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
+      }
+    }
+  ]
+}

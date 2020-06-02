@@ -5,18 +5,21 @@
   "author": "Leonardo Galante <lndgalante@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "nanoid": "^3.1.7",
+    "chalk": "^4.0.0",
+    "nanoid": "^3.1.9",
+    "node-fetch": "^2.6.0",
     "prettier": "^2.0.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.6",
     "@babel/plugin-proposal-pipeline-operator": "^7.8.3",
-    "@babel/plugin-syntax-pipeline-operator": "^7.8.3"
+    "@types/node-fetch": "^2.5.7"
   },
   "scripts": {
-    "start": "babel src/generator.js --out-file dist/bundle.js --watch",
-    "dev": "npx nodemon dist/bundle.js"
+    "start": "babel src/index.js --out-file dist/bundle.js --watch",
+    "dev": "npx nodemon dist/bundle.js",
+    "vercel:dev": "vercel dev"
   },
-  "main": "src/generator.js"
+  "main": "src/index.js"
 }
