@@ -165,12 +165,8 @@ const generateHtmlPieces = (abi = [], contractName) => {
 
     // if(name === "deposit") console.log("Name: ", name, " Inputs: ", inputs, " state: ", stateMutability)
 
-
-    let newInputs = inputs;
-    if (stateMutability === "payable") {
-      newInputs.push({ name: 'EthValue', type: 'EthValue', payable: 'true' })
-    }
-    // console.log("inputs: ", newInputs)
+    const isPayable = stateMutability === "payable";
+    const newInputs = [...newInputs, ...(isPayable ? [{ name: 'EthValue', type: 'EthValue', payable: 'true' }] : [])];
 
     const hasMoreThanOneAnonymousInput = newInputs.map(({ name }) => name).filter((name) => name === '').length > 1
 
