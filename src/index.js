@@ -33,7 +33,11 @@ const getInputElement = ({ name = '', type }, { id = '', key, hasMoreThanOneAnon
 
   const getInputName = () => {
     let inputName = name
-    if (!name) inputName = '$true'
+
+    // Deprecate support for $true
+    // if (!name) inputName = '$true'
+    if (!name) inputName = `[${key}]`
+
     if (hasMoreThanOneAnonymousInput) inputName = `[${key}]`
     return inputName
   }
@@ -165,8 +169,7 @@ const generateHtmlPieces = (abi = [], contractName) => {
 
     // if(name === "deposit") console.log("Name: ", name, " Inputs: ", inputs, " state: ", stateMutability)
 
-    const isPayable = stateMutability === "payable";
-    const newInputs = [...newInputs, ...(isPayable ? [{ name: 'EthValue', type: 'EthValue', payable: 'true' }] : [])];
+    const newInputs = [...inputs, ...(isPayable ? [{ name: 'EthValue', type: 'EthValue', payable: 'true' }] : [])];
 
     const hasMoreThanOneAnonymousInput = newInputs.map(({ name }) => name).filter((name) => name === '').length > 1
 
